@@ -142,7 +142,7 @@ export async function generateText(apiKey: string, prompt: string): Promise<stri
 export async function generateConsistentCoupleDescription(apiKey: string, userPrompt: string): Promise<string> {
     try {
         const ai = new GoogleGenAI({ apiKey });
-        const prompt = `From the user's prompt, create a detailed, consistent physical description of a young Indonesian couple.
+        const prompt = `From the user's prompt, create a detailed, consistent physical description of a young Indonesian couple, aged around 19-23 years old.
 **Crucially, ensure authentic Indonesian features (skin tone, hair, facial structure). Do not describe Caucasian features.**
 Focus on specific facial features, hairstyle, and a complete clothing description.
 Output a single, cohesive paragraph for AI image generation.

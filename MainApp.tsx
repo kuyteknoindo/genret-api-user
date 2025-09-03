@@ -257,7 +257,7 @@ const MainApp: React.FC = () => {
                 setPreviewData(p => ({ ...(p!), statusText: status }));
             };
 
-            const imageGenPrompt = `Photorealistic 4k cinematic preview, 3:4 aspect ratio. A young Indonesian couple, their appearance and clothing are described as: "${fullPrompt}". **Must be ethnically Indonesian.** Only one man and one woman. No cartoons.`;
+            const imageGenPrompt = `Photorealistic 4k cinematic preview, 3:4 aspect ratio. A young Indonesian couple, aged around 19-23 years old, their appearance and clothing are described as: "${fullPrompt}". **Must be ethnically Indonesian.** Only one man and one woman. No cartoons.`;
             const imageUrl = await performApiCall(apiKey => generateImage(apiKey, imageGenPrompt, 'gemini-2.5-flash-image-preview'), onUpdate);
 
             if (previewCancellationRef.current) return;
@@ -302,7 +302,7 @@ const MainApp: React.FC = () => {
             if (previewCancellationRef.current) return;
             setAdatPreviewData(prev => ({ ...(prev!), textPrompt: generatedText, statusText: 'Membuat preview gambar...' }));
             
-            const imageGenPrompt = `Photorealistic 4k cinematic preview, 3:4 aspect ratio. Description: "${generatedText}". **CRITICAL: The couple must be ethnically Indonesian, with features authentic to the ${region} region.** Culturally accurate attire. No cartoons.`;
+            const imageGenPrompt = `Photorealistic 4k cinematic preview, 3:4 aspect ratio. Description: "${generatedText}". **CRITICAL: The couple must be ethnically Indonesian, aged around 19-23 years old, with features authentic to the ${region} region.** Culturally accurate attire. No cartoons.`;
             const imageUrl = await performApiCall(apiKey => generateImage(apiKey, imageGenPrompt, 'gemini-2.5-flash-image-preview'), onUpdate);
 
             if (previewCancellationRef.current) return;
@@ -466,7 +466,7 @@ const MainApp: React.FC = () => {
                 const currentReference = isReferenceTabActive ? referenceFile : sessionReferenceImageRef.current;
     
                 if (useVisualReference && currentReference) {
-                    finalPrompt = `Photorealistic 4k prewedding photo. **Use the reference image for the couple's exact appearance (faces, clothes). Maintain their Indonesian ethnicity.**
+                    finalPrompt = `Photorealistic 4k prewedding photo. The couple should appear to be in their early 20s (around 19-23 years old). **Use the reference image for the couple's exact appearance (faces, clothes). Maintain their Indonesian ethnicity.**
 - New Scene (${locationTheme}): ${scenario.scene}
 - Emotion: ${scenario.emotion}
 - Style: ${photoStyle}
@@ -682,7 +682,7 @@ ${prompt && isReferenceTabActive ? `- User Notes: ${prompt}\n` : ''}- Negative P
     );
     
     return (
-        <div className="min-h-screen bg-black text-gray-200 p-4 lg:p-6 flex flex-col lg:flex-row gap-6 relative">
+        <div className="h-screen bg-black text-gray-200 p-4 lg:p-6 flex flex-col lg:flex-row gap-6 relative">
             <aside className="w-full lg:w-1/3 xl:w-[420px] bg-[#111827] p-6 rounded-2xl shadow-2xl shadow-lime-500/5 custom-scrollbar overflow-y-auto flex flex-col">
                 <div className="sticky top-0 bg-[#111827] py-4 z-10 flex justify-between items-center -mx-6 px-6 border-b border-gray-700 mb-6">
                     <div>
