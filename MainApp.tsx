@@ -7,7 +7,7 @@ import { shuffleArray, generateRandomFilename, cropImageToAspectRatio } from './
 import * as D from './creativeData';
 import CommonModals from './components/modals/CommonModals';
 
-const defaultInitialPrompt = `A hyper-realistic, cinematic prewedding photograph of a young Indonesian couple. The woman, wearing a simple pashima hijab, a long cotton tunic, and a pastel-colored pleated skirt. The man wears a comfortable flannel shirt over a white t-shirt and khaki-colored chino trousers. They are captured in a candid, stolen moment from afar, sharing a quiet moment of shared understanding.`;
+const defaultInitialPrompt = ``;
 
 // --- API Key Manager ---
 const API_KEY_STORAGE_KEY = 'ai_photographer_api_keys';
@@ -78,6 +78,7 @@ const MainApp: React.FC = () => {
     const [isEnhancing, setIsEnhancing] = useState(false);
     const [consistentCoupleDescription, setConsistentCoupleDescription] = useState('');
     const [sessionFinished, setSessionFinished] = useState(false);
+    const [sessionTargetCount, setSessionTargetCount] = useState(0);
     
     const isGenerationRunningRef = useRef(false);
     const sessionReferenceImageRef = useRef<ReferenceFile | null>(null);
@@ -375,7 +376,7 @@ const MainApp: React.FC = () => {
         });
     };
 
-    const runGeneration = async (isContinuation = false) => {
+    const runGeneration = async (isContinuation = false, overrideCount?: number) => {
         if (isGenerationRunningRef.current) return;
     
         const isReferenceTabActive = activeTab === 'reference';
@@ -390,11 +391,15 @@ const MainApp: React.FC = () => {
     
         isGenerationRunningRef.current = true;
         setIsLoading(true);
-    
+        const countForThisRun = overrideCount ?? imageCount;
+
         if (!isContinuation) {
             setGeneratedImages([]);
             setSessionFinished(false);
-            sessionReferenceImageRef.current = null; // Reset for new session
+            setSessionTargetCount(countForThisRun);
+            sessionReferenceImageRef.current = null;
+        } else if (!overrideCount) { // Only update target for "Lanjutkan", not for "Selesaikan"
+            setSessionTargetCount(prev => prev + countForThisRun);
         }
     
         let baseDescription = consistentCoupleDescription || prompt;
@@ -414,21 +419,21 @@ const MainApp: React.FC = () => {
             // Step 2: Generate all creative scenarios at once, with fallback
             setStatusText(`Membuat skenario kreatif untuk ${locationTheme}...`);
             try {
-                scenarios = await performApiCall(apiKey => generateLocationBasedScenarios(apiKey, locationTheme, imageCount), setStatusText);
+                scenarios = await performApiCall(apiKey => generateLocationBasedScenarios(apiKey, locationTheme, countForThisRun), setStatusText);
             } catch (error) {
                  console.warn("Creative scenario generation failed. Falling back to generic scenarios.", error);
                  setStatusText(`Skenario kreatif gagal, menggunakan skenario cadangan...`);
                  scenarios = shuffleArray<any>(D.storyScenes)
-                     .slice(0, imageCount)
+                     .slice(0, countForThisRun)
                      .map(scene => ({
                          scene,
                          emotion: shuffleArray<string>(D.emotionalCues)[0]
                      }));
             }
 
-            if (scenarios.length < imageCount) {
+            if (scenarios.length < countForThisRun) {
                 const fallback = { scene: 'The couple shares a quiet, intimate moment.', emotion: 'A feeling of deep connection.' };
-                scenarios.push(...Array(imageCount - scenarios.length).fill(fallback));
+                scenarios.push(...Array(countForThisRun - scenarios.length).fill(fallback));
             }
             
             setStatusText(`Persiapan selesai. Memulai sesi foto...`);
@@ -436,7 +441,7 @@ const MainApp: React.FC = () => {
 
             // Step 3: Loop through and generate images
             const startIndex = isContinuation ? generatedImages.length : 0;
-            const targetCount = startIndex + imageCount;
+            const targetCount = startIndex + countForThisRun;
     
             for (let i = startIndex; i < targetCount; i++) {
                 if (!isGenerationRunningRef.current) break;
@@ -449,7 +454,7 @@ const MainApp: React.FC = () => {
                     ...customNegativePrompt.split(',').map(s => s.trim()).filter(Boolean)
                 ].join(', ');
                 
-                setStatusText(`Gambar ${i + 1}/${targetCount} | ${scenario.scene.substring(0, 50)}...`);
+                setStatusText(`Gambar ${i + 1}/${sessionTargetCount} | ${scenario.scene.substring(0, 50)}...`);
     
                 let finalPrompt: string;
                 let imageUrl: string;
@@ -512,6 +517,13 @@ ${prompt && isReferenceTabActive ? `- User Notes: ${prompt}\n` : ''}- Negative P
             setActiveApiKeyMasked(null);
         }
     };
+    
+    const handleCompleteFailedSession = () => {
+        const remaining = sessionTargetCount - generatedImages.length;
+        if (remaining > 0) {
+            runGeneration(true, remaining);
+        }
+    };
 
     const handleStop = () => {
         isGenerationRunningRef.current = false;
@@ -541,6 +553,15 @@ ${prompt && isReferenceTabActive ? `- User Notes: ${prompt}\n` : ''}- Negative P
     
     const handleDownloadSingle = (url: string) => {
         saveAs(url, generateRandomFilename('prewedding_photo', 'jpeg'));
+    };
+    
+    const handleClearAll = () => {
+        setGeneratedImages([]);
+        setSessionFinished(false);
+        setConsistentCoupleDescription('');
+        setSessionTargetCount(0);
+        setStatusText('');
+        sessionReferenceImageRef.current = null;
     };
 
     const handleSaveApiKeys = () => {
@@ -585,6 +606,8 @@ ${prompt && isReferenceTabActive ? `- User Notes: ${prompt}\n` : ''}- Negative P
         setApiKeys(newKeys);
         storeApiKeys(newKeys);
     };
+    
+    const isSessionIncomplete = sessionFinished && generatedImages.length > 0 && generatedImages.length < sessionTargetCount;
     
     const commonFormElements = (
         <div className="flex flex-col flex-grow">
@@ -639,10 +662,25 @@ ${prompt && isReferenceTabActive ? `- User Notes: ${prompt}\n` : ''}- Negative P
                         Hentikan
                     </button>
                 )}
+                 {sessionFinished && !isLoading && (
+                    <div className="mt-4 flex flex-col gap-2">
+                         {isSessionIncomplete ? (
+                            <button onClick={handleCompleteFailedSession} disabled={hasApiKeyIssue} className="w-full text-sm bg-yellow-500 text-gray-900 font-semibold py-3 px-4 rounded-md hover:bg-yellow-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed">
+                                Selesaikan Sesi ({sessionTargetCount - generatedImages.length} foto lagi)
+                            </button>
+                         ) : (
+                            generatedImages.length > 0 && (
+                                <button onClick={() => runGeneration(true)} disabled={hasApiKeyIssue} className="w-full text-sm bg-blue-600 text-white font-semibold py-3 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed">
+                                    Lanjutkan (+{imageCount} foto)
+                                </button>
+                            )
+                         )}
+                    </div>
+                )}
             </div>
         </div>
     );
-
+    
     return (
         <div className="min-h-screen bg-black text-gray-200 p-4 lg:p-6 flex flex-col lg:flex-row gap-6 relative">
             <aside className="w-full lg:w-1/3 xl:w-[420px] bg-[#111827] p-6 rounded-2xl shadow-2xl shadow-lime-500/5 custom-scrollbar overflow-y-auto flex flex-col">
@@ -749,11 +787,11 @@ ${prompt && isReferenceTabActive ? `- User Notes: ${prompt}\n` : ''}- Negative P
                         <div className="flex-shrink-0 flex items-center justify-between mb-4">
                             <div>
                                 <h2 className="text-xl font-bold text-white">Hasil Sesi Foto</h2>
-                                <p className="text-sm text-gray-400">{generatedImages.length} foto dihasilkan.</p>
+                                <p className="text-sm text-gray-400">{generatedImages.length} dari {sessionTargetCount} foto dihasilkan.</p>
                             </div>
                            {sessionFinished && !isLoading && (
                                 <div className="flex items-center gap-2">
-                                     <button onClick={() => runGeneration(true)} className="text-sm bg-blue-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">Lanjutkan (+{imageCount} foto)</button>
+                                     <button onClick={handleClearAll} className="text-sm bg-gray-700 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-600 transition-colors">Hapus Semua</button>
                                      <button onClick={() => setModals(prev => ({ ...prev, download: true }))} className="text-sm bg-lime-400 text-gray-900 font-bold py-2 px-4 rounded-md hover:bg-lime-500 transition-colors">Unduh Semua</button>
                                 </div>
                             )}
