@@ -23,4 +23,5 @@ export interface ApiKey {
   value: string;
   masked: string;
   status: ApiKeyStatus;
+  isSystem?: boolean;
 }

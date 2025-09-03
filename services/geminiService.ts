@@ -3,6 +3,17 @@
 import { GoogleGenAI, GenerateContentResponse, Modality, Type } from "@google/genai";
 import { ApiKeyStatus } from "../types";
 
+const checkForSafetyBlock = (response: GenerateContentResponse) => {
+    if (response.candidates && response.candidates.length > 0) {
+        const firstCandidate = response.candidates[0];
+        if (firstCandidate.finishReason && firstCandidate.finishReason !== 'STOP') {
+             // Example finishReasons: "SAFETY", "RECITATION", "OTHER"
+            return `Generation stopped: ${firstCandidate.finishReason}. Check safety ratings for details.`;
+        }
+    }
+    return null;
+}
+
 /**
  * Generates an image from a text prompt, optionally using a reference image, supporting multiple AI models.
  * @param apiKey The API key to use for this request.
@@ -29,6 +40,12 @@ export async function generateImage(apiKey: string, prompt: string, model: strin
                     aspectRatio: '3:4',
                 },
             });
+
+            const safetyBlockReason = checkForSafetyBlock(response as any); // Casting since generateImages response is different
+            if (safetyBlockReason) {
+                throw new Error(`SAFETY_BLOCK: ${safetyBlockReason}`);
+            }
+
             const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
             return `data:image/jpeg;base64,${base64ImageBytes}`;
 
@@ -48,6 +65,11 @@ export async function generateImage(apiKey: string, prompt: string, model: strin
                 },
             });
 
+            const safetyBlockReason = checkForSafetyBlock(response);
+            if (safetyBlockReason) {
+                throw new Error(`SAFETY_BLOCK: ${safetyBlockReason}`);
+            }
+
             for (const part of response.candidates[0].content.parts) {
                 if (part.inlineData && part.inlineData.mimeType.startsWith('image/')) {
                     const base64ImageBytes: string = part.inlineData.data;
@@ -58,10 +80,6 @@ export async function generateImage(apiKey: string, prompt: string, model: strin
 
             const errorText = response.text?.trim();
             if (errorText) {
-                const safetyError = (response as any).error?.message;
-                if (safetyError) {
-                    throw new Error(`Image generation blocked: ${safetyError} - ${errorText}`);
-                }
                 throw new Error(`API returned a text response instead of an image: ${errorText}`);
             }
             
@@ -72,7 +90,10 @@ export async function generateImage(apiKey: string, prompt: string, model: strin
 
     } catch (error) {
         console.error("Error generating image with AI API:", error);
-        throw new Error(`Failed to generate image: ${error instanceof Error ? error.message : String(error)}`);
+        if (error instanceof Error && error.message.startsWith('SAFETY_BLOCK:')) {
+            throw error;
+        }
+        throw new Error(`Failed to generate image: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
     }
 }
 
@@ -92,19 +113,23 @@ export async function generateText(apiKey: string, prompt: string): Promise<stri
             contents: prompt,
         });
 
+        const safetyBlockReason = checkForSafetyBlock(response);
+        if (safetyBlockReason) {
+            throw new Error(`SAFETY_BLOCK: ${safetyBlockReason}`);
+        }
+
         const text = response.text;
         if (!text) {
-             const safetyError = (response as any).error?.message;
-            if (safetyError) {
-                throw new Error(`Text generation blocked: ${safetyError}`);
-            }
             throw new Error("API returned an empty text response.");
         }
         return text.trim();
 
     } catch (error) {
         console.error("Error generating text with AI API:", error);
-        throw new Error(`Failed to generate text: ${error instanceof Error ? error.message : String(error)}`);
+        if (error instanceof Error && error.message.startsWith('SAFETY_BLOCK:')) {
+            throw error;
+        }
+        throw new Error(`Failed to generate text: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
     }
 }
 
@@ -127,6 +152,11 @@ User's prompt: "${userPrompt}"`;
             model: 'gemini-2.5-flash',
             contents: prompt,
         });
+        
+        const safetyBlockReason = checkForSafetyBlock(response);
+        if (safetyBlockReason) {
+            throw new Error(`SAFETY_BLOCK: ${safetyBlockReason}`);
+        }
 
         const text = response.text;
         if (!text) {
@@ -136,7 +166,10 @@ User's prompt: "${userPrompt}"`;
 
     } catch (error) {
         console.error("Error generating consistent couple description:", error);
-        throw new Error(`Failed to generate couple description: ${error instanceof Error ? error.message : String(error)}`);
+        if (error instanceof Error && error.message.startsWith('SAFETY_BLOCK:')) {
+            throw error;
+        }
+        throw new Error(`Failed to generate couple description: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
     }
 }
 
@@ -148,43 +181,56 @@ User's prompt: "${userPrompt}"`;
  * @returns A promise that resolves to an array of scenario objects.
  */
 export async function generateLocationBasedScenarios(apiKey: string, locationTheme: string, count: number): Promise<{ scene: string; emotion: string }[]> {
-    const ai = new GoogleGenAI({ apiKey });
-    const prompt = `Generate ${count} unique, romantic photo scenarios specific to a photoshoot in "${locationTheme}".
+    try {
+        const ai = new GoogleGenAI({ apiKey });
+        const prompt = `Generate ${count} unique, romantic photo scenarios specific to a photoshoot in "${locationTheme}".
 For each, describe a physical action ('scene') and the core 'emotion'. Avoid generic ideas.
 Return as a JSON array of objects with "scene" and "emotion" keys.
 Example for Bromo: [{ "scene": "Couple huddles in a tenun blanket, watching the sunrise over the crater.", "emotion": "Shared awe and intimacy." }]`;
 
-    const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        scene: {
-                            type: Type.STRING,
-                            description: 'A specific, vivid action or story moment at the location.',
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            scene: {
+                                type: Type.STRING,
+                                description: 'A specific, vivid action or story moment at the location.',
+                            },
+                            emotion: {
+                                type: Type.STRING,
+                                description: 'The core emotion captured in that moment.',
+                            },
                         },
-                        emotion: {
-                            type: Type.STRING,
-                            description: 'The core emotion captured in that moment.',
-                        },
+                        required: ["scene", "emotion"],
                     },
-                    required: ["scene", "emotion"],
                 },
             },
-        },
-    });
+        });
+        
+        const safetyBlockReason = checkForSafetyBlock(response);
+        if (safetyBlockReason) {
+            throw new Error(`SAFETY_BLOCK: ${safetyBlockReason}`);
+        }
 
-    let jsonStr = response.text.trim();
-    const parsed = JSON.parse(jsonStr);
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-        throw new Error("Generated scenarios are not in the expected format or are empty.");
+        let jsonStr = response.text.trim();
+        const parsed = JSON.parse(jsonStr);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+            throw new Error("Generated scenarios are not in the expected format or are empty.");
+        }
+        return parsed;
+    } catch (error) {
+        console.error("Error generating location scenarios:", error);
+        if (error instanceof Error && error.message.startsWith('SAFETY_BLOCK:')) {
+            throw error;
+        }
+        throw new Error(`Failed to generate scenarios: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
     }
-    return parsed;
 }
 
 /**
@@ -207,7 +253,7 @@ export async function validateApiKey(apiKey: string): Promise<ApiKeyStatus> {
         });
         return 'active';
     } catch (error) {
-        const errorMessage = (error as Error).message || '';
+        const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
         console.error(`API key validation failed for key ending in ...${apiKey.slice(-4)}: ${errorMessage}`);
         
         if (errorMessage.includes('API key not valid')) {
