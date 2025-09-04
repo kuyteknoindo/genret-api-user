@@ -1,5 +1,6 @@
 import React from 'react';
 import { ModalState, ApiKey, ApiKeyStatus } from '../../types';
+import { adatInspirations } from '../../creativeData';
 
 type PreviewData = {
     textPrompt: string;
@@ -11,6 +12,14 @@ type PreviewData = {
 
 type AdatPreviewData = {
     region: string;
+    textPrompt: string;
+    imageUrl: string | null;
+    isLoading: boolean;
+    error: string | null;
+    statusText: string;
+} | null;
+
+type ManualPreviewData = {
     textPrompt: string;
     imageUrl: string | null;
     isLoading: boolean;
@@ -40,6 +49,9 @@ interface CommonModalsProps {
     adatPreviewData: AdatPreviewData;
     setAdatPreviewData: React.Dispatch<React.SetStateAction<AdatPreviewData>>;
     handleGenerateAdatPreview: () => Promise<void>;
+    manualPreviewData: ManualPreviewData;
+    setManualPreviewData: React.Dispatch<React.SetStateAction<ManualPreviewData>>;
+    handleGenerateManualPreview: () => Promise<void>;
     handleUseInspiration: (text: string, imageUrl: string) => void;
     handleCancelPreviews: () => void;
     activeApiKeyMasked: string | null;
@@ -65,7 +77,8 @@ const CommonModals: React.FC<CommonModalsProps> = ({
     modals, setModals, isApiModalOpen, setIsApiModalOpen, isAllKeysFailedModalOpen, setIsAllKeysFailedModalOpen,
     apiKeys, apiKeyInput, setApiKeyInput, isKeyValidationLoading, handleSaveApiKeys, handleValidateKeys, 
     handleRemoveApiKey, handleDownloadZip, handleDownloadSingle, previewData, setPreviewData, 
-    handleGenerateCasualPreview, adatPreviewData, setAdatPreviewData, handleGenerateAdatPreview, handleUseInspiration,
+    handleGenerateCasualPreview, adatPreviewData, setAdatPreviewData, handleGenerateAdatPreview, 
+    manualPreviewData, setManualPreviewData, handleGenerateManualPreview, handleUseInspiration,
     handleCancelPreviews, activeApiKeyMasked
 }) => {
     const closeModal = () => setModals({ error: null, download: false, lightbox: null });
@@ -173,7 +186,7 @@ const CommonModals: React.FC<CommonModalsProps> = ({
                 <div className="modal-overlay" onClick={handleCancelPreviews}>
                     <div className="modal-content w-full max-w-4xl" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold text-white">✨ Preview Pakaian Casual</h3>
+                            <h3 className="text-xl font-bold text-white">✨ Inspirasi Pakaian Casual</h3>
                             <button onClick={handleCancelPreviews} className="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
@@ -220,7 +233,7 @@ const CommonModals: React.FC<CommonModalsProps> = ({
                  <div className="modal-overlay" onClick={handleCancelPreviews}>
                     <div className="modal-content w-full max-w-4xl" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6">
-                             <h3 className="text-xl font-bold text-white">Preview Pakaian Adat</h3>
+                             <h3 className="text-xl font-bold text-white">✨ Inspirasi Pakaian Adat</h3>
                             <button onClick={handleCancelPreviews} className="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
                         </div>
                          
@@ -230,14 +243,25 @@ const CommonModals: React.FC<CommonModalsProps> = ({
                                 <div>
                                     <label htmlFor="adat-region" className="block text-sm font-medium text-gray-300 mb-2">Pakaian adat mana yang akan dibuat?</label>
                                     <div className="flex gap-2">
-                                        <input id="adat-region" type="text" value={adatPreviewData.region} onChange={e => setAdatPreviewData(p => ({...p!, region: e.target.value}))} disabled={adatPreviewData.isLoading} className="flex-grow bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm text-gray-200 focus:ring-lime-500 focus:border-lime-500 placeholder-gray-500" placeholder="Contoh: Jawa, Bali, Minang..." />
+                                        <select
+                                            id="adat-region"
+                                            value={adatPreviewData.region}
+                                            onChange={e => setAdatPreviewData(p => ({...p!, region: e.target.value}))}
+                                            disabled={adatPreviewData.isLoading}
+                                            className="flex-grow bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm text-gray-200 focus:ring-lime-500 focus:border-lime-500"
+                                        >
+                                            <option value="" disabled>Pilih daerah...</option>
+                                            {adatInspirations.map(adat => (
+                                                <option key={adat.region} value={adat.region}>{adat.region}</option>
+                                            ))}
+                                        </select>
                                         <button onClick={handleGenerateAdatPreview} disabled={!adatPreviewData.region || adatPreviewData.isLoading} className="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">Buat</button>
                                     </div>
                                 </div>
                                  <div className="flex flex-col flex-grow">
                                     <label className="text-sm font-medium text-gray-300 mb-2">Deskripsi Dihasilkan</label>
                                     <div className="bg-gray-900 p-4 rounded-lg text-sm text-gray-300 flex-grow min-h-[150px]">
-                                        {adatPreviewData.textPrompt || 'Deskripsi akan dibuat di sini setelah Anda memasukkan daerah dan klik "Buat".'}
+                                        {adatPreviewData.textPrompt || 'Deskripsi akan dibuat di sini setelah Anda memilih daerah dan klik "Buat".'}
                                     </div>
                                 </div>
                             </div>
@@ -265,6 +289,53 @@ const CommonModals: React.FC<CommonModalsProps> = ({
 
                         <div className="flex justify-center mt-6">
                              {adatPreviewData.imageUrl && !adatPreviewData.isLoading && <button onClick={() => handleUseInspiration(adatPreviewData.textPrompt, adatPreviewData.imageUrl!)} className="bg-lime-400 text-gray-900 font-bold py-3 px-8 rounded-lg hover:bg-lime-500 transition-colors">Gunakan Inspirasi Ini</button>}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Manual Prompt Preview Modal */}
+            {manualPreviewData && (
+                <div className="modal-overlay" onClick={handleCancelPreviews}>
+                    <div className="modal-content w-full max-w-4xl" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-bold text-white">📷 Preview dari Deskripsi Anda</h3>
+                            <button onClick={handleCancelPreviews} className="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                            {/* Left Column */}
+                            <div className="flex flex-col h-full">
+                                <label className="text-sm font-medium text-gray-300 mb-2">Deskripsi Anda</label>
+                                <div className="bg-gray-900 p-4 rounded-lg text-sm text-gray-300 flex-grow min-h-[150px]">
+                                    {manualPreviewData.textPrompt}
+                                </div>
+                                <button onClick={handleGenerateManualPreview} disabled={manualPreviewData.isLoading} className="mt-4 bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 w-full">
+                                    {manualPreviewData.isLoading ? 'Membuat...' : manualPreviewData.imageUrl ? 'Buat Ulang' : 'Buat Preview'}
+                                </button>
+                            </div>
+
+                            {/* Right Column */}
+                            <div className="flex items-center justify-center bg-gray-900 rounded-lg aspect-[3/4] p-4">
+                                {manualPreviewData.isLoading ? (
+                                    <div className="text-center">
+                                        <div className="loader mx-auto"></div>
+                                        <p className="mt-4 text-gray-300 text-sm">{manualPreviewData.statusText || 'Memuat...'}</p>
+                                        {activeApiKeyMasked && <p className="text-xs text-gray-500 mt-1">{activeApiKeyMasked}</p>}
+                                    </div>
+                                ) : manualPreviewData.error ? (
+                                    <div className="bg-red-900/30 border border-red-700 rounded-lg p-6 text-center text-red-300">
+                                        <h4 className="font-bold text-lg mb-2">Oops! Gagal membuat preview.</h4>
+                                        <p className="text-sm">{manualPreviewData.error}</p>
+                                    </div>
+                                ) : manualPreviewData.imageUrl ? (
+                                    <img src={manualPreviewData.imageUrl} alt="Manual prompt preview" className="rounded-lg object-cover w-full h-full" />
+                                ) : (
+                                    <p className="text-gray-500">Klik "Buat Preview" untuk melihat hasilnya.</p>
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap gap-4 justify-center mt-6">
+                            {manualPreviewData.imageUrl && !manualPreviewData.isLoading && <button onClick={() => handleUseInspiration(manualPreviewData.textPrompt, manualPreviewData.imageUrl!)} className="bg-lime-400 text-gray-900 font-bold py-3 px-8 rounded-lg hover:bg-lime-500 transition-colors">Gunakan Ini Sebagai Referensi</button>}
                         </div>
                     </div>
                 </div>

@@ -19,7 +19,7 @@ export const creativeAngles = ["shot from above showing couple lying on ground i
 export const emotionalExpressions = ["uncontrollable laughter with eyes squeezed shut", "tender moment with soft whispered conversation", "surprised joy with wide eyes and open mouths", "peaceful contentment with gentle closed-eye smiles", "playful mischief with secretive grins", "overwhelming emotion with tears of happiness", "confident pride walking with heads held high", "shy bashfulness with hidden giggles behind hands", "intense romantic gaze locked in eye contact", "carefree abandon with arms spread wide", "conspiratorial whispers with heads close together", "celebratory cheering with fists pumped in air", "dreamy contentment looking off into distance", "energetic excitement jumping up and down", "melancholic nostalgia remembering sweet memories", "fierce determination protecting each other", "gentle vulnerability showing true selves", "explosive celebration achieving shared goals", "quiet contemplation appreciating the moment", "mischievous plotting planning surprise adventures", "overwhelming gratitude for finding true love", "confident swagger walking together proudly", "bashful shyness hiding smiles behind hands", "passionate intensity gazing into souls", "carefree abandon dancing in rain", "protective instinct shielding from world", "childlike wonder discovering magic together", "mature wisdom appreciating life's blessings", "electric chemistry creating sparks between", "peaceful serenity in perfect harmony", "adventurous spirit seeking new experiences", "romantic idealism believing in fairy tales", "practical partnership solving problems together", "spiritual bonding connecting on soul level", "humorous banter creating inside jokes", "serious commitment promising forever", "playful teasing with loving mockery", "supportive encouragement during challenges", "surprised delight at unexpected gestures", "excited anticipation planning future together", "content satisfaction in simple moments", "proud accomplishment celebrating achievements", "hopeful optimism believing in tomorrow", "joyful reunion after time apart", "calm assurance in unshakeable bond", "curious exploration discovering new sides", "energized motivation inspiring each other", "grateful appreciation for every moment", "loving devotion promising eternal commitment"];
 export const actionInteractions = ["feeding each other strawberries or ice cream", "building something together like sandcastle or snowman", "teaching each other dance moves with patient instruction", "taking selfies with exaggerated funny faces", "playing rock-paper-scissors with competitive intensity", "sharing umbrella in rain with shoulders touching", "high-fiving after accomplishing something together", "painting each other's faces with playful concentration", "racing each other with determined expressions", "solving puzzle or riddle with heads bent together", "making wishes while blowing dandelion seeds", "star-gazing while pointing at constellations", "skipping stones across water with focused technique", "preparing picnic spread with coordinated teamwork", "flying kite together with hands on same string", "blowing bubbles and trying to catch them", "playing tug-of-war with playful determination", "picking flowers and making bouquets for each other", "teaching each other musical instruments with patient instruction", "creating art masterpiece together with shared vision", "building furniture for their future home", "gardening and planting seeds for tomorrow", "cooking elaborate feast from scratch together", "learning new language with practice conversations", "exercising with partner workout routines", "meditating together in peaceful silence", "reading poetry aloud to each other", "writing love letters with fountain pens", "creating scrapbook of relationship memories", "planning vacation itinerary with excitement", "shopping for groceries with domestic bliss", "decorating home with personal touches", "organizing photos into beautiful albums", "creating playlist of meaningful songs", "planning surprise party for loved ones", "volunteering together for important cause", "attending cultural events expanding horizons", "learning dance steps with laughing mistakes", "practicing photography techniques together", "creating time capsule for future selves", "making homemade gifts with loving care", "planning garden layout with future dreams", "creating treasure hunt with clues", "making chocolates with artistic molds", "baking bread from family recipe", "creating spice blends for cooking", "making paper from recycled materials", "designing handmade jewelry together", "building a puzzle and celebrating the finish"];
 
-export const negativePromptOptions = ["watermark", "mutation", "bad body", "fused finger", "wrong anatomy"];
+export const negativePromptOptions = ["watermark", "kissing", "bad body", "fused finger", "wrong anatomy", "white frame", "unnatural pose"];
 
 export const maleClothing = ["a relaxed linen button-down shirt", "a clean white oxford shirt", "a light chambray shirt tucked neatly", "a slim-fit button-down shirt with rolled sleeves", "a striped short-sleeve cotton shirt", "a casual polo shirt in neutral colors", "a textured knit sweater in earthy tones", "a soft crewneck sweatshirt with minimal design", "a minimalist henley shirt in muted shades", "a casual flannel shirt in subtle plaid", "a lightweight knit cardigan over a t-shirt", "a monochrome cotton hoodie with neat fit", "a relaxed camp-collar shirt in pastel tones", "a ribbed knit turtleneck in beige or cream", "a breathable long-sleeve tee with rolled cuffs", "a fine cotton mandarin-collar shirt", "a simple striped breton shirt", "a cozy cable-knit sweater in cream", "a washed denim shirt with soft fading", "a textured linen overshirt layered lightly"];
 export const malePants = ["slim-fit chinos in beige", "light grey cotton trousers", "dark blue straight-fit jeans", "cream linen trousers", "olive tapered cotton pants", "stone-wash denim jeans with neat fit", "navy chino pants with rolled hems", "classic khaki trousers", "tapered stretch cotton pants", "light brown corduroy trousers", "white summer chinos", "dark olive cargo pants with clean lines", "black slim cotton trousers", "relaxed-fit drawstring linen pants", "cropped ankle chinos in neutral colors", "camel-colored casual trousers", "navy jogger pants with tailored cut", "light blue jeans with soft fading", "charcoal cotton pleated pants", "sand-colored straight trousers"];
@@ -48,3 +48,139 @@ export const femaleClothingOptions = [
 
 
 export const accessories = ["vintage round-frame glasses", "a cream-colored beret", "a classic leather-strap watch", "a silk patterned scarf", "oversized square sunglasses", "a slim leather crossbody bag", "a pearl necklace with subtle shine", "a wide-brimmed straw hat", "a minimalist gold bracelet", "a pair of statement hoop earrings", "a structured mini handbag", "a plaid wool scarf", "a pair of Chelsea boots", "a stylish fedora hat", "a woven rattan handbag", "delicate layered necklaces", "a chic oversized blazer brooch", "sleek ankle boots", "a satin headband", "a vintage pocket watch", "a set of silver stacking rings", "a vintage leather messenger bag", "retro cat-eye sunglasses with tortoiseshell frames", "a delicate anklet with small charms", "a classic trench coat belt", "a statement choker necklace", "vintage brooches on jacket lapels", "a colorful silk pocket square", "a leather bracelet with metal studs", "retro round sunglasses with colored lenses", "delicate ear cuffs and climbers", "a vintage camera strap accessory", "a cozy infinity scarf in soft wool", "statement rings with gemstones", "a structured satchel bag", "vintage suspenders for retro style", "a silk hair scarf tied as headband", "leather oxford shoes with broguing", "a vintage compass necklace", "a classic bow tie for formal events", "vintage cufflinks with engraving", "a bohemian fringe bag", "retro pilot sunglasses", "a cozy beanie hat", "statement earrings with tassels", "a leather belt with vintage buckle", "silk gloves for elegant occasions", "a vintage locket necklace", "a structured top-handle bag", "vintage aviator sunglasses", "a classic panama hat", "statement cuff bracelet", "a vintage tie clip", "bohemian ankle boots with fringe", "a silk neck tie in bold pattern", "delicate midi rings", "a vintage doctor bag style purse", "retro wayfarrer sunglasses", "a statement belt with chain details", "vintage pearl hair pins", "a classic clutch purse", "a delicate bridal veil with lace trim", "a jeweled hair comb with crystals", "a romantic floral crown", "a pearl-embellished hairband", "a classic diamond tennis bracelet", "a pair of chandelier earrings", "a silk ribbon bow for hair", "an elegant tiara with gemstones", "a lace parasol for vintage style", "a velvet clutch purse with gold clasp", "a pair of satin ballet flats", "a rose-gold engagement ring set", "a crystal statement necklace", "a delicate lace glove pair", "a dainty anklet with pearls", "a jeweled headpiece chain", "a romantic feathered fascinator", "a silver charm bracelet", "a floral embroidered shawl", "a beaded evening purse", "a gemstone cocktail ring", "a velvet bow tie", "a chic pearl hair clip set", "a bridal hand bouquet", "a golden waist belt for dresses"];
+
+export const adatInspirations = [
+  {
+    "region": "Minangkabau (Sumatera Barat)",
+    "bride": "Baju Kurung richly embroidered with golden threads, wearing a towering golden Suntiang headpiece",
+    "groom": "Baju Gadang with Songket trousers and Saluak headcover",
+    "fabrics": "Songket with golden embroidery",
+    "background": "Rumah Gadang with gonjong roof"
+  },
+  {
+    "region": "Palembang (Sumatera Selatan)",
+    "bride": "Aesan Gede attire with golden crown",
+    "groom": "Aesan Paksangko attire with intricate gold embroidery",
+    "fabrics": "Songket Palembang",
+    "background": "Ampera bridge or Rumah Limas"
+  },
+  {
+    "region": "Aceh",
+    "bride": "Daro Baro attire with veil and golden jewelry",
+    "groom": "Linto Baro with Kupiah Meukeutop",
+    "fabrics": "Songket Aceh with gold threads",
+    "background": "Rumoh Aceh traditional wooden house"
+  },
+  {
+    "region": "Batak Toba (Sumatera Utara)",
+    "bride": "Kebaya with Ulos and headscarf",
+    "groom": "Black traditional attire with Bulang crown and Ulos draped",
+    "fabrics": "Ulos",
+    "background": "Rumah Bolon or Lake Toba view"
+  },
+  {
+    "region": "Melayu Riau",
+    "bride": "Baju Kurung Melayu with veil and fine songket",
+    "groom": "Teluk Belanga attire with songket sarong",
+    "fabrics": "Songket Melayu",
+    "background": "Malay palace or garden pavilion"
+  },
+  {
+    "region": "Lampung",
+    "bride": "Songket Lampung with large Siger crown",
+    "groom": "Traditional Lampung attire with Tumpal motifs",
+    "fabrics": "Songket Tapis",
+    "background": "Traditional Lampung house"
+  },
+  {
+    "region": "Jawa Tengah & Yogyakarta",
+    "bride": "Paes Ageng with intricate headpiece",
+    "groom": "Beskap with Batik Jarik and Blangkon",
+    "fabrics": "Batik",
+    "background": "Keraton palace or pendopo"
+  },
+  {
+    "region": "Sunda (Jawa Barat)",
+    "bride": "Kebaya Sunda with Siger Sunda crown",
+    "groom": "Beskap Sunda with Bendo headwear",
+    "fabrics": "Batik Megamendung",
+    "background": "Pendopo or tea plantation"
+  },
+  {
+    "region": "Bali",
+    "bride": "Payas Agung attire with golden flower crown",
+    "groom": "Udeng headpiece, white Balinese shirt, and Kamen with Keris",
+    "fabrics": "Songket Prada and Endek",
+    "background": "Balinese temple with Candi Bentar"
+  },
+  {
+    "region": "Sasak (Lombok, NTB)",
+    "bride": "Lambung blouse with Songket Lombok",
+    "groom": "Pegon attire with Songket sarong",
+    "fabrics": "Songket Lombok",
+    "background": "Traditional Sasak village"
+  },
+  {
+    "region": "Sumba (NTT)",
+    "bride": "Lawo Lambaleko with traditional jewelry",
+    "groom": "Hinggi Kawuru ikat cloth with headpiece",
+    "fabrics": "Ikat Sumba",
+    "background": "Traditional Sumba village with megalithic stones"
+  },
+  {
+    "region": "Dayak (Kalimantan)",
+    "bride": "Baju Manik with Enggang feather crown",
+    "groom": "Vest with Enggang feather headpiece",
+    "fabrics": "Tenun Dayak",
+    "background": "Rumah Betang longhouse"
+  },
+  {
+    "region": "Banjar (Kalimantan Selatan)",
+    "bride": "Pengantin Baamar Galung with crown",
+    "groom": "Traditional Banjar attire with embroidery",
+    "fabrics": "Songket Banjar",
+    "background": "Banjar traditional house"
+  },
+  {
+    "region": "Bugis (Sulawesi Selatan)",
+    "bride": "Baju Bodo with gold jewelry",
+    "groom": "Jas Tutu with Passapu headcloth",
+    "fabrics": "Lipa’ Sabbe songket",
+    "background": "Bugis stilt house or seashore"
+  },
+  {
+    "region": "Makassar (Sulawesi Selatan)",
+    "bride": "Baju Bodo Makassar with layered jewelry",
+    "groom": "Jas Tutu Makassar with Songket sarong",
+    "fabrics": "Silk sarong",
+    "background": "Fort Rotterdam"
+  },
+  {
+    "region": "Toraja (Sulawesi Selatan)",
+    "bride": "Pokko’ blouse with Toraja bead crown",
+    "groom": "Seppa Tallu Buku with Passapu",
+    "fabrics": "Tenun Toraja",
+    "background": "Tongkonan traditional house"
+  },
+  {
+    "region": "Gorontalo",
+    "bride": "Biliu attire with veil",
+    "groom": "Makuta attire with crown",
+    "fabrics": "Tenun Gorontalo",
+    "background": "Traditional Gorontalo palace"
+  },
+  {
+    "region": "Maluku Tengah",
+    "bride": "Baju Cele red stripes",
+    "groom": "Baju Cele with matching sarong",
+    "fabrics": "Tenun Cele",
+    "background": "Ambon city traditional houses"
+  },
+  {
+    "region": "Papua",
+    "bride": "Grass skirt (rok rumbai) with shell necklace",
+    "groom": "Traditional feather headdress with body paint",
+    "fabrics": "Natural fiber and beads",
+    "background": "Baliem Valley highlands"
+  }
+];
